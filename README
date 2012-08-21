@@ -1,0 +1,72 @@
+This is a python port of zxcvbn, which is a JavaScript password strength
+generator. zxcvbn attempts to give sound password advice through pattern
+matching and conservative entropy calculations. It finds 10k common passwords,
+common American names and surnames, common English words, and common patterns
+like dates, repeats (aaa), sequences (abcd), and QWERTY patterns.
+
+Please refer to http://tech.dropbox.com/?p=165 for the full details and
+motivation behind zxcbvn. The source code for the original JavaScript (well,
+actually CoffeeScript) implementation can be found at:
+
+https://github.com/lowe/zxcvbn
+
+
+For full motivation, see:
+
+http://tech.dropbox.com/?p=165
+
+------------------------------------------------------------------------
+Use
+------------------------------------------------------------------------
+
+The zxcvbn module exports the password_strength() function. Import zxcvbn, and
+call password_strength(password, user_inputs=[]).  The function will return a
+result dictionary with the following keys:
+
+entropy            # bits
+
+crack_time         # estimation of actual crack time, in seconds.
+
+crack_time_display # same crack time, as a friendlier string:
+                   # "instant", "6 minutes", "centuries", etc.
+
+score              # [0,1,2,3,4] if crack time is less than
+                   # [10**2, 10**4, 10**6, 10**8, Infinity].
+                   # (useful for implementing a strength bar.)
+
+match_sequence     # the list of patterns that zxcvbn based the
+                   # entropy calculation on.
+
+calculation_time   # how long it took to calculate an answer,
+                   # in milliseconds. usually only a few ms.
+
+The optional user_inputs argument is an array of strings that zxcvbn
+will add to its internal dictionary. This can be whatever list of
+strings you like, but is meant for user inputs from other fields of the
+form, like name and email. That way a password that includes the user's
+personal info can be heavily penalized. This list is also good for
+site-specific vocabulary.
+
+Bug reports and pull requests welcome!
+
+------------------------------------------------------------------------
+Acknowledgments
+------------------------------------------------------------------------
+
+Dropbox, thank you again for supporting independent projects both inside and
+outside of hackweek.
+
+Thanks to Dan Wheeler (https://github.com/lowe) for the CoffeeScript implementation
+(see above.) To repeat his outside acknowledgements (which remain useful, as always):
+
+Many thanks to Mark Burnett for releasing his 10k top passwords list:
+http://xato.net/passwords/more-top-worst-passwords
+and for his 2006 book,
+"Perfect Passwords: Selection, Protection, Authentication"
+
+Huge thanks to Wiktionary contributors for building a frequency list
+of English as used in television and movies:
+http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
+
+Last but not least, big thanks to xkcd :)
+https://xkcd.com/936/
