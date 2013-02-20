@@ -525,8 +525,8 @@ MATCHERS.extend([
 
 def omnimatch(password, user_inputs=None):
     ranked_user_inputs_dict = {}
-    for i, user_input in enumerate(user_inputs or []):
-        ranked_user_inputs_dict[user_input] = i+1
+    for i, user_input in enumerate(user_inputs):
+    	ranked_user_inputs_dict[user_input.lower()] = i+1
     user_input_matcher = _build_dict_matcher('user_inputs', ranked_user_inputs_dict)
     matches = user_input_matcher(password)
     for matcher in MATCHERS:
