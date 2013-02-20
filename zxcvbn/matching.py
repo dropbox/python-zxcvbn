@@ -1,5 +1,5 @@
 from itertools import groupby
-
+import pkg_resources
 import re
 
 try:
@@ -8,16 +8,15 @@ try:
 except ImportError:
     import json
 
-import pkg_resources
-
 
 GRAPHS = {}
 DICTIONARY_MATCHERS = []
 
+
 def translate(string, chr_map):
     out = ''
-    for c in string:
-        out += chr_map[c] if c in chr_map else c
+    for char in string:
+        out += chr_map[char] if char in chr_map else char
     return out
 
 #-------------------------------------------------------------------------------
@@ -44,6 +43,7 @@ def dictionary_match(password, ranked_dict):
                                })
     return result
 
+
 def _build_dict_matcher(dict_name, ranked_dict):
     def func(password):
         matches = dictionary_match(password, ranked_dict)
@@ -51,6 +51,7 @@ def _build_dict_matcher(dict_name, ranked_dict):
             match['dictionary_name'] = dict_name
         return matches
     return func
+
 
 def _build_ranked_dict(unranked_list):
     result = {}
@@ -60,26 +61,30 @@ def _build_ranked_dict(unranked_list):
         i += 1
     return result
 
+
 def _load_frequency_lists():
-    s = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
-    dicts = json.loads(s)
-    for name,wordlist in dicts.items():
+    data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
+    dicts = json.loads(data)
+    for name, wordlist in dicts.items():
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
+
 
 def _load_adjacency_graphs():
     global GRAPHS
-    s = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
-    GRAPHS = json.loads(s)
+    data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
+    GRAPHS = json.loads(data)
+
 
 # on qwerty, 'g' has degree 6, being adjacent to 'ftyhbv'. '\' has degree 1.
 # this calculates the average over all keys.
 def _calc_average_degree(graph):
     average = 0.0
-    for key, neighbors in graph.items():
+    for neighbors in graph.values():
         average += len([n for n in neighbors if n is not None])
 
     average /= len(graph)
     return average
+
 
 _load_frequency_lists()
 _load_adjacency_graphs()
@@ -93,12 +98,11 @@ KEYBOARD_STARTING_POSITIONS = len(GRAPHS[u'qwerty'])
 KEYPAD_STARTING_POSITIONS = len(GRAPHS[u'keypad'])
 
 
-
 #-------------------------------------------------------------------------------
 # dictionary match with common l33t substitutions ------------------------------
 #-------------------------------------------------------------------------------
 
-l33t_table = {
+L33T_TABLE = {
   'a': ['4', '@'],
   'b': ['8'],
   'c': ['(', '{', '[', '<'],
@@ -113,12 +117,12 @@ l33t_table = {
   'z': ['2'],
 }
 
-# makes a pruned copy of l33t_table that only includes password's possible substitutions
+# makes a pruned copy of L33T_TABLE that only includes password's possible substitutions
 def relevant_l33t_subtable(password):
     password_chars = set(password)
 
     filtered = {}
-    for letter, subs in l33t_table.items():
+    for letter, subs in L33T_TABLE.items():
         relevent_subs = [sub for sub in subs if sub in password_chars]
         if len(relevent_subs) > 0:
             filtered[letter] = relevent_subs
@@ -152,17 +156,18 @@ def enumerate_l33t_subs(table):
                         break
                 if dup_l33t_index == -1:
                     sub_extension = list(sub)
-                    sub_extension.append( (l33t_chr, first_key) )
+                    sub_extension.append((l33t_chr, first_key))
                     next_subs.append(sub_extension)
                 else:
                     sub_alternative = list(sub)
                     sub_alternative.pop(dup_l33t_index)
-                    sub_alternative.append( (l33t_chr, first_key) )
+                    sub_alternative.append((l33t_chr, first_key))
                     next_subs.append(sub)
                     next_subs.append(sub_alternative)
         subs = dedup(next_subs)
         keys = rest_keys
     return map(dict, subs)
+
 
 def l33t_match(password):
     matches = []
@@ -173,17 +178,17 @@ def l33t_match(password):
         subbed_password = translate(password, sub)
         for matcher in DICTIONARY_MATCHERS:
             for match in matcher(subbed_password):
-                token = password[match['i'] : match['j']+1]
+                token = password[match['i']:match['j'] + 1]
                 if token.lower() == match['matched_word']:
                     continue
                 match_sub = {}
-                for subbed_chr, c in sub.items():
+                for subbed_chr, char in sub.items():
                     if token.find(subbed_chr) != -1:
-                        match_sub[subbed_chr] = c
+                        match_sub[subbed_chr] = char
                 match['l33t'] = True
                 match['token'] = token
                 match['sub'] = match_sub
-                match['sub_display'] = ', '.join([("%s -> %s" % (k,v)) for k,v in match_sub.items()])
+                match['sub_display'] = ', '.join([("%s -> %s" % (k, v)) for k, v in match_sub.items()])
                 matches.append(match)
     return matches
 
@@ -196,6 +201,7 @@ def spatial_match(password):
     for graph_name, graph in GRAPHS.items():
         matches.extend(spatial_match_helper(password, graph, graph_name))
     return matches
+
 
 def spatial_match_helper(password, graph, graph_name):
     result = []
@@ -258,9 +264,9 @@ def repeat_match(password):
     repeats = groupby(password)
     i = 0
     for char, group in repeats:
-        l = len(list(group))
-        if l > 2:
-            j = i + l - 1
+        length = len(list(group))
+        if length > 2:
+            j = i + length - 1
             result.append({
                 'pattern': 'repeat',
                 'i': i,
@@ -268,14 +274,16 @@ def repeat_match(password):
                 'token': password[i:j+1],
                 'repeated_char': char,
             })
-        i += l
+        i += length
     return result
+
 
 SEQUENCES = {
     'lower': 'abcdefghijklmnopqrstuvwxyz',
     'upper': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
    'digits': '01234567890',
 }
+
 
 def sequence_match(password):
     result = []
@@ -286,7 +294,8 @@ def sequence_match(password):
         seq_name = None
         seq_direction = None # 1 for ascending seq abcd, -1 for dcba
         for seq_candidate_name, seq_candidate in SEQUENCES.items():
-            i_n, j_n = seq_candidate.find(password[i]), seq_candidate.find(password[j]) if j < len(password) else -1
+            i_n = seq_candidate.find(password[i])
+            j_n = seq_candidate.find(password[j]) if j < len(password) else -1
 
             if i_n > -1 and j_n > -1:
                 direction = j_n - i_n
@@ -321,9 +330,9 @@ def sequence_match(password):
 # digits, years, dates ---------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-def match_all(password, pattern_name, rx):
+def match_all(password, pattern_name, regex):
     out = []
-    for match in re.finditer(rx, password):
+    for match in regex.finditer(password):
         i = match.start()
         j = match.end()
         out.append({
@@ -334,20 +343,27 @@ def match_all(password, pattern_name, rx):
         })
     return out
 
-def digits_match(password):
-    return match_all(password, 'digits', '\d{3,}')
 
+DIGITS_MATCH = re.compile(r'\d{3,}')
+def digits_match(password):
+    return match_all(password, 'digits', DIGITS_MATCH)
+
+
+YEAR_MATCH = re.compile(r'19\d\d|200\d|201\d')
 def year_match(password):
-    return match_all(password, 'year', '19\d\d|200\d|201\d')
+    return match_all(password, 'year', YEAR_MATCH)
+
 
 def date_match(password):
     l = date_without_sep_match(password)
     l.extend(date_sep_match(password))
     return l
 
+
+DATE_WITHOUT_SEP_MATCH = re.compile(r'\d{4,8}')
 def date_without_sep_match(password):
     date_matches = []
-    for digit_match in re.finditer("\d{4,8}", password):
+    for digit_match in DATE_WITHOUT_SEP_MATCH.finditer(password):
         i, j = digit_match.start(), digit_match.end()
         token = password[i:j+1]
         end = len(token)
@@ -439,13 +455,16 @@ def date_without_sep_match(password):
             })
     return date_matches
 
-date_rx_year_suffix=r"(\d{1,2})(\s|-|/|\\|_|\.)(\d{1,2})\2(19\d{2}|200\d|201\d|\d{2})"
-#date_rx_year_suffix="(\d{1,2})(\s|-|/|\\|_|\.)"
-date_rx_year_prefix=r"(19\d{2}|200\d|201\d|\d{2})(\s|-|/|\\|_|\.)(\d{1,2})\2(\d{1,2})"
+
+DATE_RX_YEAR_SUFFIX = re.compile(r"(\d{1,2})(\s|-|/|\\|_|\.)(\d{1,2})\2(19\d{2}|200\d|201\d|\d{2})")
+#DATE_RX_YEAR_SUFFIX = "(\d{1,2})(\s|-|/|\\|_|\.)"
+DATE_RX_YEAR_PREFIX = re.compile(r"(19\d{2}|200\d|201\d|\d{2})(\s|-|/|\\|_|\.)(\d{1,2})\2(\d{1,2})")
+
+
 def date_sep_match(password):
     matches = []
-    for match in re.finditer(date_rx_year_suffix, password):
-        day, month, year = tuple(int(match.group(x)) for x in [1,3,4])
+    for match in DATE_RX_YEAR_SUFFIX.finditer(password):
+        day, month, year = tuple(int(match.group(x)) for x in [1, 3, 4])
         matches.append( {
             'day' : day,
             'month' : month,
@@ -454,8 +473,8 @@ def date_sep_match(password):
             'i' : match.start(),
             'j' : match.end()
         })
-    for match in re.finditer(date_rx_year_prefix, password):
-        day, month, year = tuple(int(match.group(x)) for x in [4,3,1])
+    for match in DATE_RX_YEAR_PREFIX.finditer(password):
+        day, month, year = tuple(int(match.group(x)) for x in [4, 3, 1])
         matches.append( {
             'day' : day,
             'month' : month,
@@ -481,17 +500,19 @@ def date_sep_match(password):
         })
     return out
 
+
 def check_date(day, month, year):
     if 12 <= month <= 31 and day <= 12: # tolerate both day-month and month-day order
         day, month = month, day
 
     if day > 31 or month > 12:
-        return (False, (0,0,0))
+        return (False, (0, 0, 0))
 
     if not (1900 <= year <= 2019):
-        return (False, (0,0,0))
+        return (False, (0, 0, 0))
 
     return (True, (day, month, year))
+
 
 MATCHERS = list(DICTIONARY_MATCHERS)
 MATCHERS.extend([
@@ -501,10 +522,11 @@ MATCHERS.extend([
     spatial_match
 ])
 
-def omnimatch(password, user_inputs=[]):
+
+def omnimatch(password, user_inputs=None):
     ranked_user_inputs_dict = {}
-    for i, user_input in enumerate(user_inputs):
-    	ranked_user_inputs_dict[user_input] = i+1
+    for i, user_input in enumerate(user_inputs or []):
+        ranked_user_inputs_dict[user_input] = i+1
     user_input_matcher = _build_dict_matcher('user_inputs', ranked_user_inputs_dict)
     matches = user_input_matcher(password)
     for matcher in MATCHERS:
