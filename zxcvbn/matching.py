@@ -523,7 +523,7 @@ MATCHERS.extend([
 ])
 
 
-def omnimatch(password, user_inputs=None):
+def omnimatch(password, user_inputs=[]):
     ranked_user_inputs_dict = {}
     for i, user_input in enumerate(user_inputs):
     	ranked_user_inputs_dict[user_input.lower()] = i+1
