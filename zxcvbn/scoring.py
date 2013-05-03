@@ -306,25 +306,17 @@ def extra_l33t_entropy(match):
 # utilities --------------------------------------------------------------------
 
 def calc_bruteforce_cardinality(password):
-    lower, upper, digits, symbols = False, False, False, False
+    lower, upper, digits, symbols = 0, 0, 0, 0
     for char in password:
         if char.islower():
-            lower = True
+            lower = 26
         elif char.isdigit():
-            digits = True
+            digits = 10
         elif char.isupper():
-            upper = True
+            upper = 26
         else:
-            symbols = True
-    cardinality = 0
-    if digits:
-        cardinality += 10
-    if upper:
-        cardinality += 26
-    if lower:
-        cardinality += 26
-    if symbols:
-        cardinality += 33
+            symbols = 33
+    cardinality = lower + digits + upper + symbols
     return cardinality
 
 
