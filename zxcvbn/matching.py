@@ -63,7 +63,7 @@ def _build_ranked_dict(unranked_list):
 
 
 def _load_frequency_lists():
-    data = str(pkg_resources.resource_string(__name__, 'generated/frequency_lists.json'))
+    data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json').decode("utf-8")
     dicts = json.loads(data)
     for name, wordlist in dicts.items():
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
@@ -71,7 +71,7 @@ def _load_frequency_lists():
 
 def _load_adjacency_graphs():
     global GRAPHS
-    data = str(pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json'))
+    data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json').decode("utf-8")
     GRAPHS = json.loads(data)
 
 
