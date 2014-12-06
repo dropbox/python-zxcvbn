@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import math
 import re
 
@@ -123,7 +127,7 @@ def round_to_x_digits(number, digits):
     """
     Returns 'number' rounded to 'digits' digits.
     """
-    return round(number * math.pow(10, digits)) / math.pow(10, digits)
+    return old_div(round(number * math.pow(10, digits)), math.pow(10, digits))
 
 # ------------------------------------------------------------------------------
 # threat model -- stolen hash catastrophe scenario -----------------------------
@@ -143,7 +147,7 @@ def round_to_x_digits(number, digits):
 SINGLE_GUESS = .010
 NUM_ATTACKERS = 100 # number of cores guessing in parallel.
 
-SECONDS_PER_GUESS = SINGLE_GUESS / NUM_ATTACKERS
+SECONDS_PER_GUESS = old_div(SINGLE_GUESS, NUM_ATTACKERS)
 
 
 def entropy_to_crack_time(entropy):
@@ -253,7 +257,7 @@ def spatial_entropy(match):
     if 'shifted_count' in match:
         S = match['shifted_count']
         U = L - S # unshifted count
-        possibilities = sum(binom(S + U, i) for i in xrange(0, min(S, U) + 1))
+        possibilities = sum(binom(S + U, i) for i in range(0, min(S, U) + 1))
         entropy += lg(possibilities)
     return entropy
 
@@ -294,7 +298,7 @@ def extra_l33t_entropy(match):
     if 'l33t' not in match or not match['l33t']:
         return 0
     possibilities = 0
-    for subbed, unsubbed in match['sub'].items():
+    for subbed, unsubbed in list(match['sub'].items()):
         sub_len = len([x for x in match['token'] if x == subbed])
         unsub_len = len([x for x in match['token'] if x == unsubbed])
         possibilities += sum(binom(unsub_len + sub_len, i) for i in range(0, min(unsub_len, sub_len) + 1))
@@ -330,14 +334,14 @@ def display_time(seconds):
     if seconds < minute:
         return 'instant'
     elif seconds < hour:
-        return str(1 + math.ceil(seconds / minute)) + " minutes"
+        return str(1 + math.ceil(old_div(seconds, minute))) + " minutes"
     elif seconds < day:
-        return str(1 + math.ceil(seconds / hour)) + " hours"
+        return str(1 + math.ceil(old_div(seconds, hour))) + " hours"
     elif seconds < month:
-        return str(1 + math.ceil(seconds / day)) + " days"
+        return str(1 + math.ceil(old_div(seconds, day))) + " days"
     elif seconds < year:
-        return str(1 + math.ceil(seconds / month)) + " months"
+        return str(1 + math.ceil(old_div(seconds, month))) + " months"
     elif seconds < century:
-        return str(1 + math.ceil(seconds / year)) + " years"
+        return str(1 + math.ceil(old_div(seconds, year))) + " years"
     else:
         return 'centuries'

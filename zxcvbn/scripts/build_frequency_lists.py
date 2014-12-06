@@ -1,3 +1,7 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
 from __future__ import with_statement
 import os
 import time
@@ -8,7 +12,7 @@ try:
 except ImportError:
     import json
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 SLEEP_TIME = 20 # seconds
 
@@ -24,11 +28,11 @@ def get_ranked_english():
     '''
     URL_TMPL = 'http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/TV/2006/%s'
     urls = []
-    for i in xrange(10):
+    for i in range(10):
         freq_range = "%d-%d" % (i * 1000 + 1, (i+1) * 1000)
         urls.append(URL_TMPL % freq_range)
 
-    for i in xrange(0,15):
+    for i in range(0,15):
         freq_range = "%d-%d" % (10000 + 2 * i * 1000 + 1, 10000 + (2 * i + 2) * 1000)
         urls.append(URL_TMPL % freq_range)
 
@@ -53,15 +57,15 @@ def wiki_download(url):
 
     tmp_path = DOWNLOAD_TMPL % freq_range
     if os.path.exists(tmp_path):
-        print 'cached.......', url
+        print('cached.......', url)
         with codecs.open(tmp_path, 'r', 'utf8') as f:
             return f.read(), True
     with codecs.open(tmp_path, 'w', 'utf8') as f:
-        print 'downloading...', url
-        req = urllib2.Request(url, headers={
+        print('downloading...', url)
+        req = urllib.request.Request(url, headers={
                 'User-Agent': 'zxcvbn'
                 })
-        response = urllib2.urlopen(req)
+        response = urllib.request.urlopen(req)
         result = response.read().decode('utf8')
         f.write(result)
         return result, False
@@ -173,16 +177,16 @@ def main():
             out[lst_name] = lst
         json.dump(out, f)
 
-    print '\nall done! totals:\n'
-    print 'passwords....', len(passwords)
-    print 'male.........', len(male_names)
-    print 'female.......', len(female_names)
-    print 'surnames.....', len(surnames)
-    print 'english......', len(english)
-    print
+    print('\nall done! totals:\n')
+    print('passwords....', len(passwords))
+    print('male.........', len(male_names))
+    print('female.......', len(female_names))
+    print('surnames.....', len(surnames))
+    print('english......', len(english))
+    print()
 
 if __name__ == '__main__':
     if os.path.basename(os.getcwd()) != 'scripts':
-        print 'run this from the scripts directory'
+        print('run this from the scripts directory')
         exit(1)
     main()

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from zxcvbn import main
 
 __all__ = ['password_strength']
@@ -11,8 +12,8 @@ if __name__ == '__main__':
 
     for line in fileinput.input():
         pw = line.strip()
-        print "Password: " + pw
+        print("Password: " + pw)
         out = password_strength(pw)
-        for key, value in out.iteritems():
+        for key, value in out.items():
             if key not in ignored:
-                print "\t%s: %s" % (key, value)
+                print("\t%s: %s" % (key, value))

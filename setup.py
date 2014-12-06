@@ -1,5 +1,8 @@
 from distutils.core import setup
 
+requires = [
+    'future'
+]
 setup(name='zxcvbn',
       version='1.0',
       description='Password strength estimator',
