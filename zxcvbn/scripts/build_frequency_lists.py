@@ -1,8 +1,6 @@
-from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-from builtins import range
-from __future__ import with_statement
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 import os
 import time
 import codecs
@@ -12,7 +10,10 @@ try:
 except ImportError:
     import json
 
-import urllib.request, urllib.error, urllib.parse
+try:
+    import urllib.request as urllib_request
+except ImportError:
+    import urllib2 as urllib_request
 
 SLEEP_TIME = 20 # seconds
 
@@ -62,10 +63,10 @@ def wiki_download(url):
             return f.read(), True
     with codecs.open(tmp_path, 'w', 'utf8') as f:
         print('downloading...', url)
-        req = urllib.request.Request(url, headers={
+        req = urllib_request.Request(url, headers={
                 'User-Agent': 'zxcvbn'
                 })
-        response = urllib.request.urlopen(req)
+        response = urllib_request.urlopen(req)
         result = response.read().decode('utf8')
         f.write(result)
         return result, False

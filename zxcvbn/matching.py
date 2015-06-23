@@ -1,6 +1,6 @@
-from builtins import map
-from builtins import str
-from builtins import range
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 from itertools import groupby
 import pkg_resources
 import re
@@ -11,11 +11,6 @@ try:
     json # silences pyflakes :<
 except ImportError:
     import json
-
-if (sys.version_info[0] > 2):
-    PY3=True
-else:
-    PY3=False
 
 
 GRAPHS = {}
@@ -73,8 +68,7 @@ def _build_ranked_dict(unranked_list):
 
 def _load_frequency_lists():
     data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
-    if PY3:
-        data = data.decode('utf-8')
+    data = data.decode('utf-8')
     dicts = json.loads(data)
     for name, wordlist in list(dicts.items()):
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
@@ -83,8 +77,7 @@ def _load_frequency_lists():
 def _load_adjacency_graphs():
     global GRAPHS
     data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
-    if PY3:
-        data = data.decode('utf-8')
+    data = data.decode('utf-8')
     GRAPHS = json.loads(data)
 
 
@@ -179,7 +172,7 @@ def enumerate_l33t_subs(table):
                     next_subs.append(sub_alternative)
         subs = dedup(next_subs)
         keys = rest_keys
-    return list(map(dict, subs))
+    return [dict(sub) for sub in subs]
 
 
 def l33t_match(password):
