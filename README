@@ -37,7 +37,7 @@ score              # [0,1,2,3,4] if crack time is less than
 match_sequence     # the list of patterns that zxcvbn based the
                    # entropy calculation on.
 
-calculation_time   # how long it took to calculate an answer,
+calc_time          # how long it took to calculate an answer,
                    # in milliseconds. usually only a few ms.
 
 The optional user_inputs argument is an array of strings that zxcvbn
