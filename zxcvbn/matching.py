@@ -1,6 +1,7 @@
 from itertools import groupby
 import pkg_resources
 import re
+import sys
 
 try:
     import simplejson as json
@@ -29,8 +30,8 @@ def dictionary_match(password, ranked_dict):
 
     pw_lower = password.lower()
 
-    for i in xrange(0, length):
-        for j in xrange(i, length):
+    for i in range(0, length):
+        for j in range(i, length):
             word = pw_lower[i:j+1]
             if word in ranked_dict:
                 rank = ranked_dict[word]
@@ -64,22 +65,28 @@ def _build_ranked_dict(unranked_list):
 
 def _load_frequency_lists():
     data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
-    dicts = json.loads(data)
-    for name, wordlist in dicts.items():
+    if sys.version_info[0] == 3:
+        dicts = json.loads(data.decode())
+    else:
+        dicts = json.loads(data)
+    for name, wordlist in list(dicts.items()):
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
 
 
 def _load_adjacency_graphs():
     global GRAPHS
     data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
-    GRAPHS = json.loads(data)
+    if sys.version_info[0] == 3:
+        GRAPHS = json.loads(data.decode())
+    else:
+        GRAPHS = json.loads(data)
 
 
 # on qwerty, 'g' has degree 6, being adjacent to 'ftyhbv'. '\' has degree 1.
 # this calculates the average over all keys.
 def _calc_average_degree(graph):
     average = 0.0
-    for neighbors in graph.values():
+    for neighbors in list(graph.values()):
         average += len([n for n in neighbors if n is not None])
 
     average /= len(graph)
@@ -89,13 +96,13 @@ def _calc_average_degree(graph):
 _load_frequency_lists()
 _load_adjacency_graphs()
 
-KEYBOARD_AVERAGE_DEGREE = _calc_average_degree(GRAPHS[u'qwerty'])
+KEYBOARD_AVERAGE_DEGREE = _calc_average_degree(GRAPHS['qwerty'])
 
 # slightly different for keypad/mac keypad, but close enough
-KEYPAD_AVERAGE_DEGREE = _calc_average_degree(GRAPHS[u'keypad'])
+KEYPAD_AVERAGE_DEGREE = _calc_average_degree(GRAPHS['keypad'])
 
-KEYBOARD_STARTING_POSITIONS = len(GRAPHS[u'qwerty'])
-KEYPAD_STARTING_POSITIONS = len(GRAPHS[u'keypad'])
+KEYBOARD_STARTING_POSITIONS = len(GRAPHS['qwerty'])
+KEYPAD_STARTING_POSITIONS = len(GRAPHS['keypad'])
 
 
 #-------------------------------------------------------------------------------
@@ -122,7 +129,7 @@ def relevant_l33t_subtable(password):
     password_chars = set(password)
 
     filtered = {}
-    for letter, subs in L33T_TABLE.items():
+    for letter, subs in list(L33T_TABLE.items()):
         relevent_subs = [sub for sub in subs if sub in password_chars]
         if len(relevent_subs) > 0:
             filtered[letter] = relevent_subs
@@ -142,7 +149,7 @@ def enumerate_l33t_subs(table):
                 deduped.append(sub)
         return deduped
 
-    keys = table.keys()
+    keys = list(table.keys())
     while len(keys) > 0:
         first_key = keys[0]
         rest_keys = keys[1:]
@@ -166,7 +173,7 @@ def enumerate_l33t_subs(table):
                     next_subs.append(sub_alternative)
         subs = dedup(next_subs)
         keys = rest_keys
-    return map(dict, subs)
+    return list(map(dict, subs))
 
 
 def l33t_match(password):
@@ -182,13 +189,13 @@ def l33t_match(password):
                 if token.lower() == match['matched_word']:
                     continue
                 match_sub = {}
-                for subbed_chr, char in sub.items():
+                for subbed_chr, char in list(sub.items()):
                     if token.find(subbed_chr) != -1:
                         match_sub[subbed_chr] = char
                 match['l33t'] = True
                 match['token'] = token
                 match['sub'] = match_sub
-                match['sub_display'] = ', '.join([("%s -> %s" % (k, v)) for k, v in match_sub.items()])
+                match['sub_display'] = ', '.join([("%s -> %s" % (k, v)) for k, v in list(match_sub.items())])
                 matches.append(match)
     return matches
 
@@ -198,7 +205,7 @@ def l33t_match(password):
 
 def spatial_match(password):
     matches = []
-    for graph_name, graph in GRAPHS.items():
+    for graph_name, graph in list(GRAPHS.items()):
         matches.extend(spatial_match_helper(password, graph, graph_name))
     return matches
 
@@ -293,7 +300,7 @@ def sequence_match(password):
         seq = None           # either lower, upper, or digits
         seq_name = None
         seq_direction = None # 1 for ascending seq abcd, -1 for dcba
-        for seq_candidate_name, seq_candidate in SEQUENCES.items():
+        for seq_candidate_name, seq_candidate in list(SEQUENCES.items()):
             i_n = seq_candidate.find(password[i])
             j_n = seq_candidate.find(password[j]) if j < len(password) else -1
 

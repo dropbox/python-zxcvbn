@@ -253,7 +253,7 @@ def spatial_entropy(match):
     if 'shifted_count' in match:
         S = match['shifted_count']
         U = L - S # unshifted count
-        possibilities = sum(binom(S + U, i) for i in xrange(0, min(S, U) + 1))
+        possibilities = sum(binom(S + U, i) for i in range(0, min(S, U) + 1))
         entropy += lg(possibilities)
     return entropy
 
@@ -294,7 +294,7 @@ def extra_l33t_entropy(match):
     if 'l33t' not in match or not match['l33t']:
         return 0
     possibilities = 0
-    for subbed, unsubbed in match['sub'].items():
+    for subbed, unsubbed in list(match['sub'].items()):
         sub_len = len([x for x in match['token'] if x == subbed])
         unsub_len = len([x for x in match['token'] if x == unsubbed])
         possibilities += sum(binom(unsub_len + sub_len, i) for i in range(0, min(unsub_len, sub_len) + 1))
