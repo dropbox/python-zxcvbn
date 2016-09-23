@@ -64,7 +64,10 @@ def _build_ranked_dict(unranked_list):
 
 def _load_frequency_lists():
     data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
-    dicts = json.loads(data.decode())
+    if sys.version_info[0] == 3:
+        dicts = json.loads(data.decode())
+    else:
+        dicts = json.loads(data)
     for name, wordlist in list(dicts.items()):
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
 
@@ -72,7 +75,10 @@ def _load_frequency_lists():
 def _load_adjacency_graphs():
     global GRAPHS
     data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
-    GRAPHS = json.loads(data.decode())
+    if sys.version_info[0] == 3:
+        GRAPHS = json.loads(data.decode())
+    else:
+        GRAPHS = json.loads(data)
 
 
 # on qwerty, 'g' has degree 6, being adjacent to 'ftyhbv'. '\' has degree 1.
