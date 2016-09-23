@@ -1,6 +1,7 @@
 from itertools import groupby
 import pkg_resources
 import re
+import sys
 
 try:
     import simplejson as json
