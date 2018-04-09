@@ -1,3 +1,9 @@
+*** THIS VERSION IS DEPRECATED ***
+
+See https://github.com/dwolfhub/zxcvbn-python for a maintained version.
+
+(The original README follows.)
+
 This is a python port of zxcvbn, which is a JavaScript password strength
 generator. zxcvbn attempts to give sound password advice through pattern
 matching and conservative entropy calculations. It finds 10k common passwords,
