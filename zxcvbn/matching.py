@@ -1,5 +1,5 @@
 from itertools import groupby
-import pkg_resources
+import os
 import re
 
 try:
@@ -7,6 +7,8 @@ try:
     json # silences pyflakes :<
 except ImportError:
     import json
+
+MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 GRAPHS = {}
@@ -63,16 +65,14 @@ def _build_ranked_dict(unranked_list):
 
 
 def _load_frequency_lists():
-    data = pkg_resources.resource_string(__name__, 'generated/frequency_lists.json')
-    dicts = json.loads(data)
+    dicts = json.load(open(os.path.join(MODULE_PATH, 'generated', 'frequency_lists.json'), 'rb'))
     for name, wordlist in dicts.items():
         DICTIONARY_MATCHERS.append(_build_dict_matcher(name, _build_ranked_dict(wordlist)))
 
 
 def _load_adjacency_graphs():
     global GRAPHS
-    data = pkg_resources.resource_string(__name__, 'generated/adjacency_graphs.json')
-    GRAPHS = json.loads(data)
+    GRAPHS = json.load(open(os.path.join(MODULE_PATH, 'generated', 'adjacency_graphs.json'), 'rb'))
 
 
 # on qwerty, 'g' has degree 6, being adjacent to 'ftyhbv'. '\' has degree 1.
@@ -526,7 +526,7 @@ MATCHERS.extend([
 def omnimatch(password, user_inputs=[]):
     ranked_user_inputs_dict = {}
     for i, user_input in enumerate(user_inputs):
-    	ranked_user_inputs_dict[user_input.lower()] = i+1
+       ranked_user_inputs_dict[user_input.lower()] = i+1
     user_input_matcher = _build_dict_matcher('user_inputs', ranked_user_inputs_dict)
     matches = user_input_matcher(password)
     for matcher in MATCHERS:
