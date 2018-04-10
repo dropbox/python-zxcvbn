@@ -1,0 +1,4 @@
+include LICENSE.txt
+include tests.txt
+include zxcvbn/generated/frequency_lists.json
+include zxcvbn/generated/adjacency_graphs.json

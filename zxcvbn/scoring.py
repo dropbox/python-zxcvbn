@@ -1,3 +1,6 @@
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 import math
 import re
 
@@ -253,7 +256,7 @@ def spatial_entropy(match):
     if 'shifted_count' in match:
         S = match['shifted_count']
         U = L - S # unshifted count
-        possibilities = sum(binom(S + U, i) for i in xrange(0, min(S, U) + 1))
+        possibilities = sum(binom(S + U, i) for i in range(0, min(S, U) + 1))
         entropy += lg(possibilities)
     return entropy
 
@@ -294,7 +297,7 @@ def extra_l33t_entropy(match):
     if 'l33t' not in match or not match['l33t']:
         return 0
     possibilities = 0
-    for subbed, unsubbed in match['sub'].items():
+    for subbed, unsubbed in list(match['sub'].items()):
         sub_len = len([x for x in match['token'] if x == subbed])
         unsub_len = len([x for x in match['token'] if x == unsubbed])
         possibilities += sum(binom(unsub_len + sub_len, i) for i in range(0, min(unsub_len, sub_len) + 1))
@@ -330,14 +333,14 @@ def display_time(seconds):
     if seconds < minute:
         return 'instant'
     elif seconds < hour:
-        return str(1 + math.ceil(seconds / minute)) + " minutes"
+        return '%s minutes' % (1 + math.ceil(seconds / minute),)
     elif seconds < day:
-        return str(1 + math.ceil(seconds / hour)) + " hours"
+        return '%s hours' % (1 + math.ceil(seconds / hour),)
     elif seconds < month:
-        return str(1 + math.ceil(seconds / day)) + " days"
+        return '%s days' % (1 + math.ceil(seconds / day),)
     elif seconds < year:
-        return str(1 + math.ceil(seconds / month)) + " months"
+        return '%s months' % (1 + math.ceil(seconds / month),)
     elif seconds < century:
-        return str(1 + math.ceil(seconds / year)) + " years"
+        return '%s years' % (1 + math.ceil(seconds / year),)
     else:
         return 'centuries'
