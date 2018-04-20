@@ -1,3 +1,7 @@
+All of the code (not data) in python-zxcvbn is released under the below license:
+
+----
+
 Copyright (c) 2012 Dropbox, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -18,3 +22,26 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----
+
+The TV and movie frequency lists are taken from Wiktionary, and are released
+under the Creative Commons Attribution-ShareAlike 3.0 Unported License, a copy
+of which can be found here:
+
+https://creativecommons.org/licenses/by-sa/3.0/legalcode
+
+----
+
+The list of 10000 common passwords was created by Mark Burnett, and is also
+released under the Creative Commons Attribution-ShareAlike 3.0 Unported License.
+Alternatively, there is the slightly ambiguous license grant that:
+"You may use the Top 10,000 Passwords List, the Top Passwords Tag Cloud or any
+portion of this article (including commercial use) with attribution to Mark
+Burnett (xato.net)."
+
+----
+
+The lists of the most common male first names, female first names and surnames
+in the United States in 2000 were taken from the U.S. Census Bureau. As works
+of the U.S. Government, they are in the public domain in the United States.
