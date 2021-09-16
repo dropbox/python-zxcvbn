@@ -131,7 +131,7 @@ def round_to_x_digits(number, digits):
 #
 # assumes:
 # * passwords are stored as salted hashes, different random salt per user.
-#   (making rainbow attacks infeasable.)
+#   (making rainbow attacks infeasible.)
 # * hashes and salts were stolen. attacker is guessing passwords at max rate.
 # * attacker has several CPUs at their disposal.
 # ------------------------------------------------------------------------------

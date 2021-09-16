@@ -14,7 +14,7 @@ SLEEP_TIME = 20 # seconds
 
 def get_ranked_english():
     '''
-    wikitionary has a list of ~40k English words, ranked by frequency of occurance in TV and movie transcripts.
+    wikitionary has a list of ~40k English words, ranked by frequency of occurrence in TV and movie transcripts.
     more details at:
     http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/TV/2006/explanation
 
